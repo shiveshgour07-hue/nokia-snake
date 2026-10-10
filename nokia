@@ -1,0 +1,1353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Nokia 3310 — Snake II</title>
+<style>
+  :root {
+    --phone-navy: #223249;
+    --phone-navy-dark: #162130;
+    --phone-bezel: #cad5e2;
+    --phone-bezel-shadow: #94a3b8;
+    --phone-frame-dark: #121820;
+    --lcd-bg: #98ad82;
+    --lcd-pixel: #162412;
+    --lcd-shadow: rgba(22, 36, 18, 0.18);
+    --btn-key: #2f4057;
+    --btn-key-active: #1d2a3a;
+    --btn-text: #ffffff;
+    --btn-nav: #e2e8f0;
+    --btn-nav-shadow: #94a3b8;
+  }
+
+  * {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    min-height: 100dvh;
+    background: radial-gradient(circle at 50% 30%, #1e293b, #0f172a, #020617);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  /* Physical Nokia 3310 Handset Frame */
+  .handset-wrapper {
+    position: relative;
+    width: 380px;
+    height: 780px;
+    max-height: 96vh;
+    max-height: 96dvh;
+    background: linear-gradient(165deg, #2b3d56 0%, var(--phone-navy) 40%, var(--phone-navy-dark) 100%);
+    border-radius: 54px 54px 70px 70px;
+    padding: 24px 22px 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 
+      0 25px 60px -10px rgba(0, 0, 0, 0.8),
+      0 0 0 2px rgba(255, 255, 255, 0.1) inset,
+      0 4px 15px rgba(0, 0, 0, 0.5) inset;
+    transform-origin: center center;
+  }
+
+  /* Power button notch at top */
+  .handset-top-button {
+    position: absolute;
+    top: -5px;
+    width: 60px;
+    height: 8px;
+    background: #0f172a;
+    border-radius: 4px 4px 0 0;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+  }
+
+  /* Earpiece Speaker Grille */
+  .earpiece {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 12px;
+  }
+  .earpiece-slit {
+    width: 7px;
+    height: 3px;
+    background: #0b1118;
+    border-radius: 2px;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.15);
+  }
+
+  /* Nokia Brand Logo */
+  .brand-logo {
+    color: #cbd5e1;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-shadow: 0 -1px 1px rgba(0,0,0,0.8), 0 1px 1px rgba(255,255,255,0.2);
+    margin-bottom: 10px;
+  }
+
+  /* Screen Outer Bezel */
+  .screen-bezel {
+    width: 100%;
+    background: linear-gradient(180deg, #d8e2ee 0%, var(--phone-bezel) 50%, var(--phone-bezel-shadow) 100%);
+    border-radius: 28px;
+    padding: 14px 16px 16px;
+    box-shadow: 
+      0 6px 14px rgba(0, 0, 0, 0.4),
+      0 1px 2px rgba(255, 255, 255, 0.8) inset,
+      0 -2px 4px rgba(0, 0, 0, 0.2) inset;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Glass Inner Display Frame */
+  .screen-glass {
+    position: relative;
+    width: 100%;
+    height: 196px;
+    background: #141c12;
+    border-radius: 14px;
+    padding: 8px;
+    box-shadow: 
+      0 4px 12px rgba(0, 0, 0, 0.6) inset,
+      0 0 0 2px #0a0f0a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  /* Subtle Glass Reflection Glare */
+  .screen-glass::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(125deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 35%, transparent 55%);
+    pointer-events: none;
+    border-radius: 14px;
+    z-index: 5;
+  }
+
+  /* The 84x48 Dot-Matrix Monochrome LCD Display */
+  .lcd-screen-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: var(--lcd-bg);
+    border-radius: 6px;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  /* Scanline / Pixel Grid Simulation Overlay */
+  .lcd-grid-overlay {
+    position: absolute;
+    inset: 0;
+    background: 
+      repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.04) 0px, rgba(0, 0, 0, 0.04) 1px, transparent 1px, transparent 4px),
+      repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.04) 0px, rgba(0, 0, 0, 0.04) 1px, transparent 1px, transparent 4px);
+    pointer-events: none;
+    z-index: 4;
+  }
+
+  #gameCanvas {
+    width: 100%;
+    height: 100%;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    display: block;
+    cursor: pointer;
+  }
+
+  /* Lower Nav Keys (Softkeys & Large Rocker) */
+  .nav-key-row {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 18px;
+    padding: 0 4px;
+  }
+
+  .soft-key {
+    width: 72px;
+    height: 38px;
+    background: linear-gradient(180deg, #f1f5f9 0%, var(--btn-nav) 60%, var(--btn-nav-shadow) 100%);
+    border: none;
+    border-radius: 18px 18px 10px 10px;
+    color: #1e293b;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    box-shadow: 
+      0 4px 6px rgba(0, 0, 0, 0.35),
+      0 1px 0 rgba(255, 255, 255, 0.8) inset;
+    cursor: pointer;
+    transition: transform 0.05s ease, box-shadow 0.05s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .soft-key:active, .soft-key.pressed {
+    transform: translateY(2px);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  }
+
+  /* Big Center Sculpted Navi-Key */
+  .center-navi-key {
+    width: 115px;
+    height: 48px;
+    background: linear-gradient(180deg, #f8fafc 0%, #cbd5e1 60%, #94a3b8 100%);
+    border: none;
+    border-radius: 24px;
+    box-shadow: 
+      0 6px 10px rgba(0, 0, 0, 0.4),
+      0 1px 0 rgba(255, 255, 255, 0.9) inset;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    color: #334155;
+    font-size: 16px;
+    font-weight: 900;
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.05s ease;
+  }
+  .center-navi-key:active, .center-navi-key.pressed {
+    transform: translateY(2px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  }
+  .center-navi-bar {
+    width: 32px;
+    height: 4px;
+    background: #64748b;
+    border-radius: 2px;
+  }
+
+  /* Clear / Power Key (C) */
+  .clear-key-row {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 6px;
+    margin-bottom: 8px;
+  }
+  .key-c {
+    width: 76px;
+    height: 28px;
+    background: linear-gradient(180deg, #e2e8f0 0%, #94a3b8 100%);
+    border: none;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 900;
+    color: #1e293b;
+    cursor: pointer;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+  }
+  .key-c:active, .key-c.pressed {
+    transform: translateY(2px);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  }
+
+  /* Tactile Numeric Keypad Grid */
+  .numeric-keypad {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 9px 14px;
+    padding: 4px 10px 0;
+    flex: 1;
+  }
+
+  .num-btn {
+    height: 44px;
+    background: linear-gradient(175deg, #374a63 0%, var(--btn-key) 50%, var(--btn-key-active) 100%);
+    border: none;
+    border-radius: 20px 20px 14px 14px;
+    color: var(--btn-text);
+    box-shadow: 
+      0 4px 6px rgba(0, 0, 0, 0.4),
+      0 1px 0 rgba(255, 255, 255, 0.2) inset;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2px 0;
+    transition: transform 0.05s ease, box-shadow 0.05s ease;
+  }
+  .num-btn:active, .num-btn.pressed {
+    transform: translateY(2px);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+    background: var(--btn-key-active);
+  }
+
+  .num-btn .primary-val {
+    font-size: 16px;
+    font-weight: 800;
+    line-height: 1;
+  }
+  .num-btn .sub-val {
+    font-size: 8.5px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    color: #cbd5e1;
+    margin-top: 2px;
+  }
+
+  /* Keypad directional arrows helper badges */
+  .arrow-indicator {
+    font-size: 10px;
+    color: #93c5fd;
+    margin-left: 2px;
+  }
+
+  /* Desktop Quick-Guide Banner */
+  .desktop-guide {
+    position: absolute;
+    bottom: -32px;
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+
+  /* Mobile Responsive Scaling */
+  @media (max-width: 480px), (max-height: 820px) {
+    .handset-wrapper {
+      transform: scale(0.92);
+    }
+    .desktop-guide { display: none; }
+  }
+  @media (max-height: 720px) {
+    .handset-wrapper {
+      transform: scale(0.82);
+    }
+  }
+  @media (max-height: 640px) {
+    .handset-wrapper {
+      transform: scale(0.74);
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="handset-wrapper">
+  <div class="handset-top-button" title="Power / Reset" onclick="powerToggle()"></div>
+  
+  <div class="earpiece">
+    <div class="earpiece-slit"></div>
+    <div class="earpiece-slit"></div>
+    <div class="earpiece-slit"></div>
+    <div class="earpiece-slit"></div>
+  </div>
+
+  <div class="brand-logo">NOKIA</div>
+
+  <!-- Screen Bezel with Glass and LCD Screen -->
+  <div class="screen-bezel">
+    <div class="screen-glass">
+      <div class="lcd-screen-container">
+        <canvas id="gameCanvas" width="84" height="48"></canvas>
+        <div class="lcd-grid-overlay"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Softkey and Nav Controls -->
+  <div class="nav-key-row">
+    <button class="soft-key" id="btn-left-soft" onclick="handleInput('SOFT_LEFT')">Menu</button>
+    <button class="center-navi-key" id="btn-navi" onclick="handleInput('NAVI')">
+      <span>▲</span>
+      <div class="center-navi-bar"></div>
+      <span>▼</span>
+    </button>
+    <button class="soft-key" id="btn-right-soft" onclick="handleInput('SOFT_RIGHT')">Back</button>
+  </div>
+
+  <div class="clear-key-row">
+    <button class="key-c" id="btn-c" onclick="handleInput('KEY_C')">C</button>
+  </div>
+
+  <!-- Numeric Phone Keypad (2=Up, 4=Left, 6=Right, 8=Down) -->
+  <div class="numeric-keypad">
+    <button class="num-btn" id="key-1" onclick="handleInput('KEY_1')">
+      <span class="primary-val">1</span>
+      <span class="sub-val">.,'?!</span>
+    </button>
+    <button class="num-btn" id="key-2" onclick="handleInput('KEY_2')" title="Up (2)">
+      <span class="primary-val">2 <span class="arrow-indicator">▲</span></span>
+      <span class="sub-val">ABC</span>
+    </button>
+    <button class="num-btn" id="key-3" onclick="handleInput('KEY_3')">
+      <span class="primary-val">3</span>
+      <span class="sub-val">DEF</span>
+    </button>
+
+    <button class="num-btn" id="key-4" onclick="handleInput('KEY_4')" title="Left (4)">
+      <span class="primary-val">4 <span class="arrow-indicator">◄</span></span>
+      <span class="sub-val">GHI</span>
+    </button>
+    <button class="num-btn" id="key-5" onclick="handleInput('KEY_5')" title="Action / Select">
+      <span class="primary-val">5</span>
+      <span class="sub-val">JKL</span>
+    </button>
+    <button class="num-btn" id="key-6" onclick="handleInput('KEY_6')" title="Right (6)">
+      <span class="primary-val">6 <span class="arrow-indicator">►</span></span>
+      <span class="sub-val">MNO</span>
+    </button>
+
+    <button class="num-btn" id="key-7" onclick="handleInput('KEY_7')">
+      <span class="primary-val">7</span>
+      <span class="sub-val">PQRS</span>
+    </button>
+    <button class="num-btn" id="key-8" onclick="handleInput('KEY_8')" title="Down (8)">
+      <span class="primary-val">8 <span class="arrow-indicator">▼</span></span>
+      <span class="sub-val">TUV</span>
+    </button>
+    <button class="num-btn" id="key-9" onclick="handleInput('KEY_9')">
+      <span class="primary-val">9</span>
+      <span class="sub-val">WXYZ</span>
+    </button>
+
+    <button class="num-btn" id="key-star" onclick="handleInput('KEY_STAR')">
+      <span class="primary-val">*</span>
+      <span class="sub-val">♫ Mute</span>
+    </button>
+    <button class="num-btn" id="key-0" onclick="handleInput('KEY_0')">
+      <span class="primary-val">0</span>
+      <span class="sub-val">Space</span>
+    </button>
+    <button class="num-btn" id="key-hash" onclick="handleInput('KEY_HASH')">
+      <span class="primary-val">#</span>
+      <span class="sub-val">Pause</span>
+    </button>
+  </div>
+
+  <div class="desktop-guide">
+    Arrow Keys / WASD / 2-4-6-8 · Enter = Select · Esc / C = Back · Space = Pause
+  </div>
+</div>
+
+<script>
+(function() {
+  "use strict";
+
+  // Canvas & Context Setup for 84x48 dot-matrix display
+  const canvas = document.getElementById("gameCanvas");
+  const ctx = canvas.getContext("2d");
+
+  // Web Audio API Synthesizer (Zero External Audio Files)
+  let audioCtx = null;
+  let soundEnabled = true;
+
+  function initAudio() {
+    if (!audioCtx) {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (AudioContextClass) {
+        audioCtx = new AudioContextClass();
+      }
+    }
+    if (audioCtx && audioCtx.state === "suspended") {
+      audioCtx.resume();
+    }
+  }
+
+  function playTone(freq, type, duration, delay = 0, gainLevel = 0.12) {
+    if (!soundEnabled || !audioCtx) return;
+    try {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type; // 'square' or 'sawtooth'
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime + delay);
+      gain.gain.setValueAtTime(gainLevel, audioCtx.currentTime + delay);
+      gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + delay + duration);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(audioCtx.currentTime + delay);
+      osc.stop(audioCtx.currentTime + delay + duration);
+    } catch(e) {}
+  }
+
+  function playSound(name) {
+    if (!soundEnabled) return;
+    initAudio();
+    if (!audioCtx) return;
+
+    if (name === "click") {
+      playTone(1800, "square", 0.012, 0, 0.06);
+    } else if (name === "eat") {
+      playTone(620, "square", 0.04, 0, 0.14);
+      playTone(880, "square", 0.06, 0.04, 0.14);
+    } else if (name === "bonus_spawn") {
+      playTone(440, "square", 0.04, 0, 0.1);
+      playTone(554, "square", 0.04, 0.04, 0.1);
+      playTone(659, "square", 0.06, 0.08, 0.1);
+    } else if (name === "bonus_eat") {
+      playTone(523, "square", 0.04, 0, 0.16);
+      playTone(659, "square", 0.04, 0.04, 0.16);
+      playTone(784, "square", 0.04, 0.08, 0.16);
+      playTone(1046, "square", 0.10, 0.12, 0.18);
+    } else if (name === "die") {
+      playTone(380, "sawtooth", 0.12, 0, 0.2);
+      playTone(260, "sawtooth", 0.15, 0.10, 0.2);
+      playTone(140, "sawtooth", 0.35, 0.22, 0.25);
+    } else if (name === "nokia_tune") {
+      // Iconic Nokia Tune Arpeggio
+      const notes = [
+        [659.25, 0.14], [587.33, 0.14], [369.99, 0.26], [415.30, 0.26],
+        [554.37, 0.14], [493.88, 0.14], [293.66, 0.26], [329.63, 0.38]
+      ];
+      let t = 0;
+      notes.forEach(([f, d]) => {
+        playTone(f, "square", d * 0.9, t, 0.15);
+        t += d;
+      });
+    }
+  }
+
+  // --- Authentic Dot-Matrix 3x5 and 4x6 Bitmap Font ---
+  const BITMAP_FONT = {
+    'A': [0x6,0x9,0xF,0x9,0x9], 'B': [0xE,0x9,0xE,0x9,0xE], 'C': [0x7,0x8,0x8,0x8,0x7],
+    'D': [0xE,0x9,0x9,0x9,0xE], 'E': [0xF,0x8,0xE,0x8,0xF], 'F': [0xF,0x8,0xE,0x8,0x8],
+    'G': [0x7,0x8,0xB,0x9,0x7], 'H': [0x9,0x9,0xF,0x9,0x9], 'I': [0x7,0x2,0x2,0x2,0x7],
+    'J': [0x1,0x1,0x1,0x9,0x6], 'K': [0x9,0xA,0xC,0xA,0x9], 'L': [0x8,0x8,0x8,0x8,0xF],
+    'M': [0x9,0xF,0xD,0x9,0x9], 'N': [0x9,0xD,0xB,0x9,0x9], 'O': [0x6,0x9,0x9,0x9,0x6],
+    'P': [0xE,0x9,0xE,0x8,0x8], 'Q': [0x6,0x9,0x9,0xA,0x5], 'R': [0xE,0x9,0xE,0xA,0x9],
+    'S': [0x7,0x8,0x6,0x1,0xE], 'T': [0x7,0x2,0x2,0x2,0x2], 'U': [0x9,0x9,0x9,0x9,0x6],
+    'V': [0x9,0x9,0x9,0x5,0x2], 'W': [0x9,0x9,0xD,0xF,0x9], 'X': [0x9,0x5,0x2,0x5,0x9],
+    'Y': [0x5,0x5,0x2,0x2,0x2], 'Z': [0xF,0x1,0x6,0x8,0xF],
+    '0': [0x6,0x9,0x9,0x9,0x6], '1': [0x2,0x6,0x2,0x2,0x7], '2': [0xE,0x1,0x6,0x8,0xF],
+    '3': [0xE,0x1,0x6,0x1,0xE], '4': [0x9,0x9,0xF,0x1,0x1], '5': [0xF,0x8,0xE,0x1,0xE],
+    '6': [0x6,0x8,0xE,0x9,0x6], '7': [0xF,0x1,0x2,0x4,0x4], '8': [0x6,0x9,0x6,0x9,0x6],
+    '9': [0x6,0x9,0x7,0x1,0x6],
+    ':': [0x0,0x2,0x0,0x2,0x0], '-': [0x0,0x0,0x7,0x0,0x0], '.': [0x0,0x0,0x0,0x0,0x2],
+    '!': [0x2,0x2,0x2,0x0,0x2], '?': [0xE,0x1,0x6,0x0,0x2], '/': [0x1,0x2,0x4,0x8,0x0],
+    ' ': [0x0,0x0,0x0,0x0,0x0], '>': [0x8,0x4,0x2,0x4,0x8], '<': [0x2,0x4,0x8,0x4,0x2]
+  };
+
+  function drawText(str, startX, startY, align = "left", scale = 1) {
+    str = String(str).toUpperCase();
+    const charWidth = 4 * scale;
+    const totalWidth = str.length * charWidth;
+    let x = startX;
+    if (align === "center") x = Math.floor(startX - totalWidth / 2);
+    else if (align === "right") x = startX - totalWidth;
+
+    ctx.fillStyle = "#162412";
+    for (let c = 0; c < str.length; c++) {
+      const char = str[c];
+      const glyph = BITMAP_FONT[char] || BITMAP_FONT['?'];
+      for (let r = 0; r < 5; r++) {
+        const rowBits = glyph[r];
+        for (let b = 0; b < 4; b++) {
+          if ((rowBits >> (3 - b)) & 1) {
+            ctx.fillRect(x + b * scale, startY + r * scale, scale, scale);
+          }
+        }
+      }
+      x += charWidth;
+    }
+  }
+
+  // --- Mazes Definition (Snake II Authentic Layouts) ---
+  // Coordinates in 42 x 20 cell grid
+  const MAZES = [
+    {
+      name: "OPEN",
+      description: "Border Wrap Around",
+      buildWalls: () => []
+    },
+    {
+      name: "BOX",
+      description: "Solid Boundary",
+      buildWalls: () => {
+        const walls = [];
+        for (let x = 0; x < 42; x++) { walls.push({x, y: 0}); walls.push({x, y: 19}); }
+        for (let y = 1; y < 19; y++) { walls.push({x: 0, y}); walls.push({x: 41, y}); }
+        return walls;
+      }
+    },
+    {
+      name: "TUNNEL",
+      description: "Corridor Gates",
+      buildWalls: () => {
+        const walls = [];
+        // Two horizontal dividing corridors with center gates
+        for (let x = 0; x < 42; x++) {
+          if (x < 14 || x > 27) {
+            walls.push({x, y: 6});
+            walls.push({x, y: 13});
+          }
+        }
+        return walls;
+      }
+    },
+    {
+      name: "APARTMENT",
+      description: "Four Quadrants",
+      buildWalls: () => {
+        const walls = [];
+        // Solid outer corners and center cross barrier
+        for (let x = 6; x < 36; x++) {
+          if (x !== 20 && x !== 21) walls.push({x, y: 10});
+        }
+        for (let y = 3; y < 17; y++) {
+          if (y !== 9 && y !== 10) walls.push({x: 21, y});
+        }
+        return walls;
+      }
+    },
+    {
+      name: "LABYRINTH",
+      description: "Spiral Maze",
+      buildWalls: () => {
+        const walls = [];
+        for (let x = 0; x < 42; x++) { walls.push({x, y: 0}); walls.push({x, y: 19}); }
+        for (let y = 0; y < 15; y++) walls.push({x: 10, y});
+        for (let y = 5; y < 20; y++) walls.push({x: 21, y});
+        for (let y = 0; y < 15; y++) walls.push({x: 31, y});
+        return walls;
+      }
+    }
+  ];
+
+  // Game Speed Tiers (Level 1 slowest to 9 fastest)
+  const SPEEDS = [
+    { level: 1, interval: 250 },
+    { level: 2, interval: 210 },
+    { level: 3, interval: 175 },
+    { level: 4, interval: 145 },
+    { level: 5, interval: 120 },
+    { level: 6, interval: 100 },
+    { level: 7, interval: 82 },
+    { level: 8, interval: 68 },
+    { level: 9, interval: 55 }
+  ];
+
+  // Game Engine State
+  const state = {
+    screen: "BOOT", // BOOT, MENU, PLAYING, PAUSED, GAMEOVER
+    bootTimer: 0,
+    selectedMazeIndex: 0,
+    selectedSpeedIndex: 3, // Level 4 default
+    highScores: {},
+    
+    // In-game properties
+    snake: [],
+    direction: { x: 1, y: 0 },
+    inputQueue: [], // FIFO buffer (max size 2) for zero-bug turning
+    walls: [],
+    food: null,
+    regularFoodEaten: 0,
+    bonusFood: null,
+    bonusTimer: 0,
+    bonusMaxTimer: 60,
+    score: 0,
+    lastTickTime: 0,
+    gameOverTimer: 0,
+    isNewHighScore: false,
+
+    // Menu Navigation
+    menuCursor: 0,
+    menuItems: [
+      { id: "CONTINUE", label: "START GAME" },
+      { id: "MAZE", label: "MAZE" },
+      { id: "SPEED", label: "SPEED" },
+      { id: "HIGHSCORE", label: "HIGH SCORES" },
+      { id: "SOUND", label: "SOUND: ON" },
+      { id: "INSTRUCTIONS", label: "HELP" }
+    ]
+  };
+
+  // Restore High Scores from localStorage
+  function loadPersistedData() {
+    try {
+      const saved = localStorage.getItem("nokia_snake_hiscores");
+      if (saved) state.highScores = JSON.parse(saved);
+      const snd = localStorage.getItem("nokia_snake_sound");
+      if (snd !== null) soundEnabled = snd === "1";
+      updateSoundMenuLabel();
+    } catch(e) {}
+  }
+
+  function savePersistedData() {
+    try {
+      localStorage.setItem("nokia_snake_hiscores", JSON.stringify(state.highScores));
+      localStorage.setItem("nokia_snake_sound", soundEnabled ? "1" : "0");
+    } catch(e) {}
+  }
+
+  function getHighScoreForMaze(mIndex) {
+    return state.highScores[mIndex] || 0;
+  }
+
+  function setHighScoreForMaze(mIndex, score) {
+    if (score > getHighScoreForMaze(mIndex)) {
+      state.highScores[mIndex] = score;
+      savePersistedData();
+      return true;
+    }
+    return false;
+  }
+
+  function updateSoundMenuLabel() {
+    const item = state.menuItems.find(m => m.id === "SOUND");
+    if (item) item.label = `SOUND: ${soundEnabled ? "ON" : "OFF"}`;
+  }
+
+  // --- Reset & Start Game ---
+  function startNewGame() {
+    state.screen = "PLAYING";
+    state.score = 0;
+    state.regularFoodEaten = 0;
+    state.bonusFood = null;
+    state.bonusTimer = 0;
+    state.isNewHighScore = false;
+    state.direction = { x: 1, y: 0 };
+    state.inputQueue = [];
+
+    // Playfield grid size: 42 cols x 20 rows (2x2 pixel blocks on 84x40 area; top 8px for HUD)
+    state.snake = [
+      { x: 10, y: 10 },
+      { x: 9, y: 10 },
+      { x: 8, y: 10 },
+      { x: 7, y: 10 }
+    ];
+
+    state.walls = MAZES[state.selectedMazeIndex].buildWalls();
+    spawnFood();
+    state.lastTickTime = performance.now();
+    updateSoftkeyLabels("PAUSE", "EXIT");
+  }
+
+  function spawnFood() {
+    let attempts = 0;
+    let valid = false;
+    let fx = 0, fy = 0;
+
+    while (!valid && attempts < 500) {
+      attempts++;
+      fx = Math.floor(Math.random() * 42);
+      fy = Math.floor(Math.random() * 20);
+
+      // Check wall collision
+      const hitsWall = state.walls.some(w => w.x === fx && w.y === fy);
+      // Check snake collision
+      const hitsSnake = state.snake.some(s => s.x === fx && s.y === fy);
+      // Check bonus collision
+      const hitsBonus = state.bonusFood && state.bonusFood.x === fx && state.bonusFood.y === fy;
+
+      if (!hitsWall && !hitsSnake && !hitsBonus) {
+        valid = true;
+      }
+    }
+
+    state.food = { x: fx, y: fy };
+  }
+
+  function spawnBonusCreature() {
+    let attempts = 0;
+    let valid = false;
+    let bx = 0, by = 0;
+
+    while (!valid && attempts < 500) {
+      attempts++;
+      bx = Math.floor(Math.random() * 41);
+      by = Math.floor(Math.random() * 19);
+
+      const hitsWall = state.walls.some(w => (w.x === bx || w.x === bx+1) && (w.y === by || w.y === by+1));
+      const hitsSnake = state.snake.some(s => (s.x === bx || s.x === bx+1) && (s.y === by || s.y === by+1));
+      const hitsFood = state.food && state.food.x === bx && state.food.y === by;
+
+      if (!hitsWall && !hitsSnake && !hitsFood) {
+        valid = true;
+      }
+    }
+
+    state.bonusFood = { x: bx, y: by };
+    state.bonusTimer = state.bonusMaxTimer;
+    playSound("bonus_spawn");
+  }
+
+  // --- Input Handling with FIFO Buffer (Zero Reverse Bug) ---
+  function queueDirection(newDir) {
+    if (state.screen !== "PLAYING") return;
+    
+    // Determine the base direction to compare against:
+    // If the queue already has buffered directions, compare against the last queued one;
+    // otherwise compare against current moving direction.
+    const lastDir = state.inputQueue.length > 0 
+      ? state.inputQueue[state.inputQueue.length - 1] 
+      : state.direction;
+
+    // Check if new direction is opposite of lastDir (180° reverse attempt)
+    const isOpposite = (newDir.x === -lastDir.x && newDir.y === -lastDir.y);
+    const isSame = (newDir.x === lastDir.x && newDir.y === lastDir.y);
+
+    if (!isOpposite && !isSame && state.inputQueue.length < 2) {
+      state.inputQueue.push(newDir);
+    }
+  }
+
+  // --- Core Game Engine Step (Fixed-Interval Tick) ---
+  function updateGameTick() {
+    if (state.screen !== "PLAYING") return;
+
+    // Apply next queued direction if available
+    if (state.inputQueue.length > 0) {
+      state.direction = state.inputQueue.shift();
+    }
+
+    const head = state.snake[0];
+    let nextX = head.x + state.direction.x;
+    let nextY = head.y + state.direction.y;
+
+    // Handle Wall and Border collisions
+    const currentMaze = MAZES[state.selectedMazeIndex];
+    if (currentMaze.name === "OPEN") {
+      // Wrap around grid (cols: 0..41, rows: 0..19)
+      if (nextX < 0) nextX = 41;
+      else if (nextX >= 42) nextX = 0;
+      if (nextY < 0) nextY = 19;
+      else if (nextY >= 20) nextY = 0;
+    } else {
+      // Solid boundary check for closed mazes
+      if (nextX < 0 || nextX >= 42 || nextY < 0 || nextY >= 20) {
+        triggerGameOver();
+        return;
+      }
+    }
+
+    // Check Maze Obstacle Collision
+    for (let i = 0; i < state.walls.length; i++) {
+      if (state.walls[i].x === nextX && state.walls[i].y === nextY) {
+        triggerGameOver();
+        return;
+      }
+    }
+
+    // Check Self-Bite Collision (exclude tail tip since it vacates this tick)
+    for (let i = 0; i < state.snake.length - 1; i++) {
+      if (state.snake[i].x === nextX && state.snake[i].y === nextY) {
+        triggerGameOver();
+        return;
+      }
+    }
+
+    const newHead = { x: nextX, y: nextY };
+    state.snake.unshift(newHead);
+
+    // Check Regular Food Eat
+    if (state.food && nextX === state.food.x && nextY === state.food.y) {
+      const speedPoints = (state.selectedSpeedIndex + 1) * 10;
+      state.score += speedPoints;
+      state.regularFoodEaten++;
+      playSound("eat");
+
+      // Spawn bonus creature every 5 foods
+      if (state.regularFoodEaten % 5 === 0 && !state.bonusFood) {
+        spawnBonusCreature();
+      }
+      spawnFood();
+    } else if (state.bonusFood && 
+              (nextX === state.bonusFood.x || nextX === state.bonusFood.x + 1) && 
+              (nextY === state.bonusFood.y || nextY === state.bonusFood.y + 1)) {
+      // Ate Bonus Creature
+      const bonusScore = Math.max(50, Math.floor(state.bonusTimer * 4));
+      state.score += bonusScore;
+      state.bonusFood = null;
+      state.bonusTimer = 0;
+      playSound("bonus_eat");
+    } else {
+      // Normal step: remove tail segment
+      state.snake.pop();
+    }
+
+    // Update Bonus countdown
+    if (state.bonusFood) {
+      state.bonusTimer--;
+      // Move bonus creature randomly occasionally
+      if (Math.random() < 0.25) {
+        const dx = (Math.random() < 0.5 ? -1 : 1);
+        const dy = (Math.random() < 0.5 ? -1 : 1);
+        const nx = Math.max(0, Math.min(40, state.bonusFood.x + dx));
+        const ny = Math.max(0, Math.min(18, state.bonusFood.y + dy));
+        const hitsWall = state.walls.some(w => (w.x === nx || w.x === nx+1) && (w.y === ny || w.y === ny+1));
+        if (!hitsWall) {
+          state.bonusFood.x = nx;
+          state.bonusFood.y = ny;
+        }
+      }
+      if (state.bonusTimer <= 0) {
+        state.bonusFood = null;
+      }
+    }
+  }
+
+  function triggerGameOver() {
+    state.screen = "GAMEOVER";
+    state.gameOverTimer = 0;
+    playSound("die");
+    state.isNewHighScore = setHighScoreForMaze(state.selectedMazeIndex, state.score);
+    updateSoftkeyLabels("RETRY", "MENU");
+  }
+
+  // --- Rendering The Entire 84x48 Dot-Matrix Display ---
+  function render() {
+    // Fill LCD background
+    ctx.fillStyle = "#98ad82";
+    ctx.fillRect(0, 0, 84, 48);
+
+    if (state.screen === "BOOT") {
+      renderBootScreen();
+    } else if (state.screen === "MENU") {
+      renderMenuScreen();
+    } else if (state.screen === "PLAYING" || state.screen === "PAUSED") {
+      renderGamePlayScreen();
+      if (state.screen === "PAUSED") {
+        renderPauseOverlay();
+      }
+    } else if (state.screen === "GAMEOVER") {
+      renderGameOverScreen();
+    }
+  }
+
+  function renderBootScreen() {
+    // Nostalgic Nokia Silhouette Animation
+    state.bootTimer++;
+    
+    // Draw Animated Hands
+    ctx.fillStyle = "#162412";
+    drawText("NOKIA", 42, 14, "center", 2);
+    
+    // Progress line
+    const progress = Math.min(60, Math.floor(state.bootTimer * 0.9));
+    ctx.fillRect(12, 34, progress, 3);
+    ctx.strokeRect(10, 32, 64, 7);
+
+    if (state.bootTimer > 70) {
+      state.screen = "MENU";
+      updateSoftkeyLabels("SELECT", "BACK");
+    }
+  }
+
+  function renderMenuScreen() {
+    // Title Banner
+    ctx.fillStyle = "#162412";
+    ctx.fillRect(0, 0, 84, 8);
+    ctx.fillStyle = "#98ad82";
+    drawText("SNAKE II", 42, 1, "center");
+
+    const curItem = state.menuItems[state.menuCursor];
+
+    // Menu Item Card Area
+    ctx.fillStyle = "#162412";
+    
+    if (curItem.id === "MAZE") {
+      drawText("MAZE:", 42, 14, "center");
+      const m = MAZES[state.selectedMazeIndex];
+      drawText(`< ${m.name} >`, 42, 23, "center");
+      drawText(m.description, 42, 33, "center");
+    } else if (curItem.id === "SPEED") {
+      drawText("SPEED LEVEL", 42, 14, "center");
+      const s = SPEEDS[state.selectedSpeedIndex];
+      drawText(`< LEVEL ${s.level} >`, 42, 25, "center");
+      // Speed bars
+      for (let i = 0; i < 9; i++) {
+        if (i <= state.selectedSpeedIndex) ctx.fillRect(15 + i * 6, 36, 4, 6);
+        else ctx.strokeRect(15 + i * 6, 36, 4, 6);
+      }
+    } else if (curItem.id === "HIGHSCORE") {
+      drawText("HIGH SCORE", 42, 12, "center");
+      const m = MAZES[state.selectedMazeIndex];
+      drawText(m.name, 42, 21, "center");
+      drawText(String(getHighScoreForMaze(state.selectedMazeIndex)), 42, 31, "center", 2);
+    } else if (curItem.id === "INSTRUCTIONS") {
+      drawText("CONTROLS", 42, 12, "center");
+      drawText("2=UP  8=DOWN", 42, 21, "center");
+      drawText("4=LEFT 6=RIGHT", 42, 29, "center");
+      drawText("5=SELECT", 42, 37, "center");
+    } else {
+      drawText(curItem.label, 42, 23, "center");
+      // Mini Snake icon
+      ctx.fillRect(20, 36, 44, 2);
+      ctx.fillRect(60, 34, 4, 4);
+    }
+
+    // Scroll Arrows Indicator
+    drawText("▲", 78, 12, "center");
+    drawText("▼", 78, 38, "center");
+  }
+
+  function renderGamePlayScreen() {
+    // --- TOP HUD (8px high: y=0..7) ---
+    ctx.fillStyle = "#162412";
+    // Score displayed right-aligned
+    const scoreStr = String(state.score).padStart(5, "0");
+    drawText(scoreStr, 83, 1, "right");
+
+    // Level indicator
+    drawText(`L${state.selectedSpeedIndex + 1}`, 1, 1, "left");
+
+    // Bonus Insect countdown bar
+    if (state.bonusFood && state.bonusTimer > 0) {
+      // Draw mini insect icon
+      ctx.fillRect(24, 2, 3, 3);
+      ctx.fillRect(23, 3, 5, 1);
+      // Progress bar
+      const barLen = Math.floor((state.bonusTimer / state.bonusMaxTimer) * 22);
+      ctx.fillRect(30, 2, barLen, 3);
+      ctx.strokeRect(29, 1, 24, 5);
+    }
+
+    // Top border separator line
+    ctx.fillRect(0, 7, 84, 1);
+
+    // --- PLAYFIELD (y=8 to 47, 40px high, 84px wide) ---
+    // Cell size: 2x2 pixels. Origin: (0, 8)
+
+    // Draw Maze Walls
+    ctx.fillStyle = "#162412";
+    for (let i = 0; i < state.walls.length; i++) {
+      const w = state.walls[i];
+      ctx.fillRect(w.x * 2, 8 + w.y * 2, 2, 2);
+    }
+
+    // Draw Regular Food (2x2 with center cutout for vintage dot-matrix apple look)
+    if (state.food) {
+      ctx.fillRect(state.food.x * 2, 8 + state.food.y * 2, 2, 2);
+      // Flashing tiny top pixel
+      if (Math.floor(performance.now() / 200) % 2 === 0) {
+        ctx.fillRect(state.food.x * 2, 8 + state.food.y * 2 - 1, 1, 1);
+      }
+    }
+
+    // Draw Bonus Creature (Spider/Beetle 4x4 pixels)
+    if (state.bonusFood) {
+      const bx = state.bonusFood.x * 2;
+      const by = 8 + state.bonusFood.y * 2;
+      ctx.fillRect(bx + 1, by + 1, 2, 2); // Body
+      ctx.fillRect(bx, by, 1, 1); // Legs
+      ctx.fillRect(bx + 3, by, 1, 1);
+      ctx.fillRect(bx, by + 3, 1, 1);
+      ctx.fillRect(bx + 3, by + 3, 1, 1);
+    }
+
+    // Draw Snake Segments
+    for (let i = 0; i < state.snake.length; i++) {
+      const seg = state.snake[i];
+      const px = seg.x * 2;
+      const py = 8 + seg.y * 2;
+
+      if (i === 0) {
+        // Snake Head (Solid 2x2 with direction eye dot)
+        ctx.fillRect(px, py, 2, 2);
+      } else {
+        // Snake Body: Authentic solid segment with 1px border separation
+        ctx.fillRect(px, py, 2, 2);
+      }
+    }
+  }
+
+  function renderPauseOverlay() {
+    // Flashing "PAUSED" Dialog Box
+    if (Math.floor(performance.now() / 350) % 2 === 0) {
+      ctx.fillStyle = "#98ad82";
+      ctx.fillRect(18, 16, 48, 18);
+      ctx.fillStyle = "#162412";
+      ctx.strokeRect(18, 16, 48, 18);
+      drawText("PAUSED", 42, 22, "center");
+    }
+  }
+
+  function renderGameOverScreen() {
+    state.gameOverTimer++;
+    
+    // Background card
+    ctx.fillStyle = "#98ad82";
+    ctx.fillRect(4, 4, 76, 40);
+    ctx.fillStyle = "#162412";
+    ctx.strokeRect(4, 4, 76, 40);
+
+    drawText("GAME OVER!", 42, 8, "center");
+
+    if (state.isNewHighScore) {
+      drawText("NEW RECORD!", 42, 17, "center");
+    } else {
+      drawText("SCORE:", 42, 17, "center");
+    }
+
+    drawText(String(state.score), 42, 26, "center", 2);
+    drawText("PRESS 5/SELECT", 42, 37, "center");
+  }
+
+  function updateSoftkeyLabels(leftText, rightText) {
+    const l = document.getElementById("btn-left-soft");
+    const r = document.getElementById("btn-right-soft");
+    if (l) l.textContent = leftText;
+    if (r) r.textContent = rightText;
+  }
+
+  // --- Input Router (Keyboard, Touch Keypad, Screen Swipes) ---
+  window.handleInput = function(action) {
+    initAudio();
+    playSound("click");
+
+    // Visual button press feedback for DOM buttons
+    highlightDomButton(action);
+
+    if (state.screen === "BOOT") {
+      state.screen = "MENU";
+      updateSoftkeyLabels("SELECT", "BACK");
+      return;
+    }
+
+    if (state.screen === "PLAYING") {
+      switch (action) {
+        case "UP":
+        case "KEY_2":
+          queueDirection({ x: 0, y: -1 });
+          break;
+        case "DOWN":
+        case "KEY_8":
+          queueDirection({ x: 0, y: 1 });
+          break;
+        case "LEFT":
+        case "KEY_4":
+          queueDirection({ x: -1, y: 0 });
+          break;
+        case "RIGHT":
+        case "KEY_6":
+          queueDirection({ x: 1, y: 0 });
+          break;
+        case "SOFT_LEFT":
+        case "KEY_HASH":
+        case "KEY_0":
+          state.screen = "PAUSED";
+          updateSoftkeyLabels("CONTINUE", "QUIT");
+          break;
+        case "SOFT_RIGHT":
+        case "KEY_C":
+          state.screen = "MENU";
+          updateSoftkeyLabels("SELECT", "BACK");
+          break;
+        case "KEY_STAR":
+          toggleSound();
+          break;
+      }
+    } else if (state.screen === "PAUSED") {
+      if (action === "SOFT_LEFT" || action === "KEY_5" || action === "NAVI") {
+        state.screen = "PLAYING";
+        updateSoftkeyLabels("PAUSE", "EXIT");
+      } else if (action === "SOFT_RIGHT" || action === "KEY_C") {
+        state.screen = "MENU";
+        updateSoftkeyLabels("SELECT", "BACK");
+      }
+    } else if (state.screen === "GAMEOVER") {
+      if (action === "SOFT_LEFT" || action === "KEY_5" || action === "NAVI") {
+        startNewGame();
+      } else if (action === "SOFT_RIGHT" || action === "KEY_C") {
+        state.screen = "MENU";
+        updateSoftkeyLabels("SELECT", "BACK");
+      }
+    } else if (state.screen === "MENU") {
+      handleMenuInput(action);
+    }
+  };
+
+  function handleMenuInput(action) {
+    const curItem = state.menuItems[state.menuCursor];
+
+    if (action === "UP" || action === "KEY_2") {
+      state.menuCursor = (state.menuCursor - 1 + state.menuItems.length) % state.menuItems.length;
+    } else if (action === "DOWN" || action === "KEY_8" || action === "NAVI") {
+      state.menuCursor = (state.menuCursor + 1) % state.menuItems.length;
+    } else if (action === "LEFT" || action === "KEY_4") {
+      if (curItem.id === "MAZE") {
+        state.selectedMazeIndex = (state.selectedMazeIndex - 1 + MAZES.length) % MAZES.length;
+      } else if (curItem.id === "SPEED") {
+        state.selectedSpeedIndex = (state.selectedSpeedIndex - 1 + SPEEDS.length) % SPEEDS.length;
+      }
+    } else if (action === "RIGHT" || action === "KEY_6") {
+      if (curItem.id === "MAZE") {
+        state.selectedMazeIndex = (state.selectedMazeIndex + 1) % MAZES.length;
+      } else if (curItem.id === "SPEED") {
+        state.selectedSpeedIndex = (state.selectedSpeedIndex + 1) % SPEEDS.length;
+      }
+    } else if (action === "SOFT_LEFT" || action === "KEY_5") {
+      if (curItem.id === "CONTINUE") {
+        startNewGame();
+      } else if (curItem.id === "MAZE") {
+        state.selectedMazeIndex = (state.selectedMazeIndex + 1) % MAZES.length;
+      } else if (curItem.id === "SPEED") {
+        state.selectedSpeedIndex = (state.selectedSpeedIndex + 1) % SPEEDS.length;
+      } else if (curItem.id === "SOUND") {
+        toggleSound();
+      } else if (curItem.id === "HIGHSCORE" || curItem.id === "INSTRUCTIONS") {
+        startNewGame();
+      }
+    } else if (action === "KEY_STAR") {
+      toggleSound();
+    }
+  }
+
+  function toggleSound() {
+    soundEnabled = !soundEnabled;
+    updateSoundMenuLabel();
+    savePersistedData();
+    if (soundEnabled) playSound("click");
+  }
+
+  window.powerToggle = function() {
+    initAudio();
+    playSound("nokia_tune");
+    state.screen = "BOOT";
+    state.bootTimer = 0;
+  };
+
+  function highlightDomButton(action) {
+    const map = {
+      'KEY_1': 'key-1', 'KEY_2': 'key-2', 'KEY_3': 'key-3',
+      'KEY_4': 'key-4', 'KEY_5': 'key-5', 'KEY_6': 'key-6',
+      'KEY_7': 'key-7', 'KEY_8': 'key-8', 'KEY_9': 'key-9',
+      'KEY_STAR': 'key-star', 'KEY_0': 'key-0', 'KEY_HASH': 'key-hash',
+      'KEY_C': 'btn-c', 'SOFT_LEFT': 'btn-left-soft', 'SOFT_RIGHT': 'btn-right-soft',
+      'NAVI': 'btn-navi', 'UP': 'key-2', 'DOWN': 'key-8', 'LEFT': 'key-4', 'RIGHT': 'key-6'
+    };
+    const id = map[action];
+    if (id) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.classList.add("pressed");
+        setTimeout(() => el.classList.remove("pressed"), 100);
+      }
+    }
+  }
+
+  // --- Keyboard Event Listeners ---
+  window.addEventListener("keydown", (e) => {
+    initAudio();
+    const key = e.key;
+
+    if (key === "ArrowUp" || key === "w" || key === "W") {
+      e.preventDefault();
+      handleInput("UP");
+    } else if (key === "ArrowDown" || key === "s" || key === "S") {
+      e.preventDefault();
+      handleInput("DOWN");
+    } else if (key === "ArrowLeft" || key === "a" || key === "A") {
+      e.preventDefault();
+      handleInput("LEFT");
+    } else if (key === "ArrowRight" || key === "d" || key === "D") {
+      e.preventDefault();
+      handleInput("RIGHT");
+    } else if (key === "Enter" || key === " ") {
+      e.preventDefault();
+      if (state.screen === "PLAYING") handleInput("SOFT_LEFT");
+      else handleInput("KEY_5");
+    } else if (key === "Escape" || key === "Backspace" || key === "c" || key === "C") {
+      e.preventDefault();
+      handleInput("SOFT_RIGHT");
+    } else if (key >= "0" && key <= "9") {
+      e.preventDefault();
+      handleInput(`KEY_${key}`);
+    } else if (key === "*") {
+      handleInput("KEY_STAR");
+    } else if (key === "#") {
+      handleInput("KEY_HASH");
+    }
+  });
+
+  // --- Touch Screen Gestures on Canvas (Swipe Controls) ---
+  let touchStartX = 0;
+  let touchStartY = 0;
+  canvas.addEventListener("touchstart", (e) => {
+    initAudio();
+    if (e.touches.length > 0) {
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+    }
+  }, { passive: true });
+
+  canvas.addEventListener("touchend", (e) => {
+    if (e.changedTouches.length > 0) {
+      const dx = e.changedTouches[0].clientX - touchStartX;
+      const dy = e.changedTouches[0].clientY - touchStartY;
+      const absDx = Math.abs(dx);
+      const absDy = Math.abs(dy);
+
+      if (Math.max(absDx, absDy) > 18) {
+        if (absDx > absDy) {
+          if (dx > 0) handleInput("RIGHT");
+          else handleInput("LEFT");
+        } else {
+          if (dy > 0) handleInput("DOWN");
+          else handleInput("UP");
+        }
+      } else {
+        // Tap on screen acts as select / softkey
+        handleInput("KEY_5");
+      }
+    }
+  }, { passive: true });
+
+  // Canvas Click for Desktop
+  canvas.addEventListener("click", () => {
+    initAudio();
+    if (state.screen === "BOOT") state.screen = "MENU";
+    else if (state.screen === "GAMEOVER") startNewGame();
+    else if (state.screen === "PAUSED") handleInput("SOFT_LEFT");
+  });
+
+  // --- Main Animation & Fixed Step Game Loop ---
+  let lastFrameTime = performance.now();
+  function gameLoop(now) {
+    requestAnimationFrame(gameLoop);
+
+    const delta = now - lastFrameTime;
+    lastFrameTime = now;
+
+    if (state.screen === "PLAYING") {
+      const curSpeed = SPEEDS[state.selectedSpeedIndex].interval;
+      if (now - state.lastTickTime >= curSpeed) {
+        updateGameTick();
+        state.lastTickTime = now;
+      }
+    }
+
+    render();
+  }
+
+  // --- Initialize App ---
+  loadPersistedData();
+  updateSoftkeyLabels("SELECT", "BACK");
+  requestAnimationFrame(gameLoop);
+
+  // Auto-play startup chime after brief delay
+  setTimeout(() => {
+    playSound("nokia_tune");
+  }, 350);
+
+})();
+</script>
+</body>
+</html>
